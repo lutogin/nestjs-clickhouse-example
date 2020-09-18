@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  crud:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 'crud.clickhouse'
+    restart: unless-stopped
+    depends_on:
+      - cl-server
+    ports:
+      - 34000:3000
+      - 9229:9229 # debugger port
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - net
+
+  cl-server:
+    image: yandex/clickhouse-server
+    ports:
+      - 8123:8123
+      - 9000:9000
+    volumes:
+      - cl-server:/var/lib/clickhouse
+    networks:
+      - net
+
+#  cl-client:
+#    image: yandex/clickhouse-client
+#    command: ['--host', 'cl-server']
+#    depends_on:
+#      - cl-server
+#    networks:
+#      - net
+
+networks:
+  net:
+
+volumes:
+  cl-server:
